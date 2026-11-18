@@ -7,7 +7,6 @@ import time
 import requests
 import os
 
-from sentence_transformers import SentenceTransformer
 from pinecone import Pinecone, ServerlessSpec
 
 # Default arguments for DAG
@@ -27,6 +26,7 @@ with DAG(
     schedule_interval=timedelta(days=7),
     start_date=datetime(2026, 11, 1),
     catchup=False,
+    max_active_runs=1,
     tags=['medium', 'pinecone', 'search-engine'],
 ) as dag:
     """
@@ -136,6 +136,9 @@ with DAG(
         # Load preprocessed data
         df = pd.read_csv(data_path)
         
+        # Import inside the task to keep DAG parsing lightweight.
+        from sentence_transformers import SentenceTransformer
+
         # Initialize embedding model
         model = SentenceTransformer('all-MiniLM-L6-v2', device='cpu')
         
@@ -181,6 +184,9 @@ with DAG(
         # Get API key
         api_key = Variable.get("pinecone_api_key")
         
+        # Import inside the task to keep DAG parsing lightweight.
+        from sentence_transformers import SentenceTransformer
+
         # Initialize embedding model
         model = SentenceTransformer('all-MiniLM-L6-v2', device='cpu')
         
